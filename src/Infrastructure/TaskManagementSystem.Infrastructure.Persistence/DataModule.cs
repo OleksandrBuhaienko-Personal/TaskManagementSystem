@@ -9,12 +9,12 @@ namespace TaskManagementSystem.Infrastructure.Persistence;
 
 public static class DataModule
 {
-  public static void AddDbAndRepositoryServices(this IServiceCollection services, IConfiguration configuration)
+  public static void ConfigureDataModule(this IServiceCollection services, IConfiguration configuration)
   {
     //Database configuration
     services.AddDbContext<AppDbContext>(opt => opt
       .UseNpgsql(configuration
-        .GetConnectionString("DB:ConnectionString")));
+        .GetConnectionString("Default")));
 
     //Generic Repository
     services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));

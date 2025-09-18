@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TaskManagementSystem.Domain.Entities.Common;
+using TaskManagementSystem.Domain.Interfaces;
 
 namespace TaskManagementSystem.Infrastructure.Persistence.EntityConfigurations.Base;
 
-internal abstract class EntityConfiguration<T> : IEntityTypeConfiguration<T> where T : Entity
+public abstract class EntityConfiguration<T> : IEntityTypeConfiguration<T> where T : Entity, IAggregateRoot
 {
   public void Configure(EntityTypeBuilder<T> builder)
   {
@@ -17,5 +18,5 @@ internal abstract class EntityConfiguration<T> : IEntityTypeConfiguration<T> whe
     ConfigureEntity(builder);
   }
 
-  public abstract void ConfigureEntity(EntityTypeBuilder<T> builder);
+  protected abstract void ConfigureEntity(EntityTypeBuilder<T> builder);
 }
