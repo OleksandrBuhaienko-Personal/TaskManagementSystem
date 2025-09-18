@@ -1,5 +1,6 @@
 using Microsoft.OpenApi.Models;
 using TaskManagementSystem.Application;
+using TaskManagementSystem.Auth;
 using TaskManagementSystem.Infrastructure.Persistence;
 
 namespace TaskManagementSystem.WebAPI;
@@ -10,7 +11,10 @@ public class Program
   {
     var builder = WebApplication.CreateBuilder(args);
 
-    
+    builder.Services.ConfigureDataModule(builder.Configuration);
+    builder.Services.ConfigureApplicationModules(builder.Configuration);
+    builder.Services.AddAuth(builder.Configuration);
+
     
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
@@ -21,8 +25,6 @@ public class Program
 
     var app = builder.Build();
     
-    builder.Services.ConfigureDataModule(builder.Configuration);
-    builder.Services.ConfigureApplicationModules(builder.Configuration);
     
     if (app.Environment.IsDevelopment())
     {
@@ -32,6 +34,7 @@ public class Program
 
     app.UseHttpsRedirection();
 
+    app.UseAuthentication();
     app.UseAuthorization();
 
 

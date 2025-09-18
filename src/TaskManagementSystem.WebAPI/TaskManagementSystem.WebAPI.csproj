@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Application\TaskManagementSystem.Application\TaskManagementSystem.Application.csproj" />
+    <ProjectReference Include="..\Application\TaskManagementSystem.Auth\TaskManagementSystem.Auth.csproj" />
     <ProjectReference Include="..\Infrastructure\TaskManagementSystem.Infrastructure.Persistence\TaskManagementSystem.Infrastructure.Persistence.csproj" />
   </ItemGroup>
 

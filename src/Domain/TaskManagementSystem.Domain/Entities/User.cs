@@ -7,7 +7,7 @@ using TaskManagementSystem.Domain.Interfaces;
 
 namespace TaskManagementSystem.Domain.Entities
 {
-  public class User : Entity, IAggregateRoot
+  public class User : Entity
   {
     private uint _age;
     private string _firstName = string.Empty;

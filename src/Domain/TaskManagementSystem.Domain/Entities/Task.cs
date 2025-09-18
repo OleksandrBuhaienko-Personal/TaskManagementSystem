@@ -1,10 +1,9 @@
 using System;
 using TaskManagementSystem.Domain.Entities.Common;
-using TaskManagementSystem.Domain.Interfaces;
 
 namespace TaskManagementSystem.Domain.Entities
 {
-  public class Task : Entity, IAggregateRoot
+  public class Task : Entity
   {
     private string _title = string.Empty;
 

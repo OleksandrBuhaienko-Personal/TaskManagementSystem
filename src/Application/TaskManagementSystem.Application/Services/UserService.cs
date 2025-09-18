@@ -7,6 +7,7 @@ using TaskManagementSystem.Domain.Interfaces.Services.Base;
 
 namespace TaskManagementSystem.Application.Services;
 
+//TODO: Update interface to the user specific, remove base one
 public class UserService : IBaseEntityService<User>
 {
   private readonly IRepository<User> _repository;
