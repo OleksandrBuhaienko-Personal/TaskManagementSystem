@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Application\TaskManagementSystem.Application\TaskManagementSystem.Application.csproj" />
     <ProjectReference Include="..\Infrastructure\TaskManagementSystem.Infrastructure.Persistence\TaskManagementSystem.Infrastructure.Persistence.csproj" />
   </ItemGroup>
 
