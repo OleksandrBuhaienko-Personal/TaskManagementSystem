@@ -1,5 +1,6 @@
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
+using TaskManagementSystem.Infrastructure.Persistence;
 
 namespace TaskManagementSystem.WebAPI;
 
@@ -19,6 +20,9 @@ public class Program
     });
 
     var app = builder.Build();
+    
+    builder.Services.ConfigureDataModule(builder.Configuration);
+    
     
     if (app.Environment.IsDevelopment())
     {
