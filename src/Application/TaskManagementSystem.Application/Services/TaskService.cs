@@ -2,11 +2,12 @@
 using Ardalis.Result;
 using TaskManagementSystem.Application.Specifications;
 using TaskManagementSystem.Domain.Interfaces;
+using TaskManagementSystem.Domain.Interfaces.Services;
 using Task = TaskManagementSystem.Domain.Entities.Task;
 
 namespace TaskManagementSystem.Application.Services;
 
-public class TaskService
+public class TaskService : ITaskService
 {
   private readonly IRepository<Task> _repository;
   

@@ -4,5 +4,6 @@ namespace TaskManagementSystem.Domain.Constants
   {
     public const uint MinAge = 18;
     public const uint MaxAge = 120;
+    public const string DefaultRoleName = "Admin"; 
   }
 }

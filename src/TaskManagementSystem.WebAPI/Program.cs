@@ -14,6 +14,7 @@ public class Program
     builder.Services.ConfigureDataModule(builder.Configuration);
     builder.Services.ConfigureApplicationModules(builder.Configuration);
     builder.Services.AddAuth(builder.Configuration);
+    builder.Services.ConfigureApplicationModules(builder.Configuration);
 
     
     builder.Services.AddControllers();

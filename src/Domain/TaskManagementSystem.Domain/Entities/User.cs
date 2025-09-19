@@ -47,6 +47,7 @@ namespace TaskManagementSystem.Domain.Entities
       set => _email = value ?? throw new ArgumentNullException(nameof(value), "Email cannot be empty");
     }
 
+    public string PasswordHash { get; set; }
     public User(uint age, string firstName, string lastName, string email)
     {
       Age = age;
