@@ -6,10 +6,11 @@ namespace TaskManagementSystem.Domain.Entities.Auth
 {
   public class Role : Entity
   {
+    private readonly List<UserRole> _userRoles = new List<UserRole>();
     public string Name { get; private set; } = string.Empty;
 
     // Navigation property for the many-to-many relationship
-    public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public IReadOnlyList<UserRole> UserRoles => _userRoles.AsReadOnly();
 
     public Role() { }
 
@@ -18,7 +19,7 @@ namespace TaskManagementSystem.Domain.Entities.Auth
       UpdateName(name);
     }
 
-    public void UpdateName(string name)
+    private void UpdateName(string name)
     {
       if (string.IsNullOrWhiteSpace(name))
       {

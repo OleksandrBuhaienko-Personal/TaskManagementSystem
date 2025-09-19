@@ -21,6 +21,13 @@ internal class UserConfiguration : EntityConfiguration<User>
       .IsRequired()
       .HasMaxLength(50);
     
+    builder.Property(u => u.Email)
+      .IsRequired()
+      .HasMaxLength(100);
+
+    builder.Property(u => u.PasswordHash)
+      .IsRequired(false);
+      
     builder.HasMany(u => u.Tasks)
       .WithOne(t => t.User)
       .HasForeignKey(t => t.UserId);

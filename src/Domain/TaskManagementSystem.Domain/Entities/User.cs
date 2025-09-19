@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using TaskManagementSystem.Domain.Constants;
+using TaskManagementSystem.Domain.Entities.Auth;
 using TaskManagementSystem.Domain.Entities.Common;
 using TaskManagementSystem.Domain.Interfaces;
 
@@ -14,6 +15,7 @@ namespace TaskManagementSystem.Domain.Entities
     private string _lastName = string.Empty;
     private string _email = string.Empty;
     private readonly List<Task> _tasks = new List<Task>();
+    private readonly List<UserRole> _userRoles = new List<UserRole>();
     
     public uint Age
     {
@@ -57,5 +59,6 @@ namespace TaskManagementSystem.Domain.Entities
     }
     
     public IReadOnlyList<Task> Tasks => _tasks.AsReadOnly();
+    public IReadOnlyList<UserRole> UserRoles => _userRoles.AsReadOnly();
   }
 }
