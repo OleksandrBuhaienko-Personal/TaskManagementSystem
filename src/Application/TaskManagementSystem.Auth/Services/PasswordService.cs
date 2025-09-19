@@ -30,7 +30,6 @@ public class PasswordService : IPasswordService
   }
   public async Task<bool> VerifyPasswordAsync(User user, string password)
   {
-    //TODO: Add passwordHash to user entity
     var verificationResult = _passwordHasher.VerifyHashedPassword(null!, user.PasswordHash, password);
     return verificationResult == PasswordVerificationResult.Success;
   }
