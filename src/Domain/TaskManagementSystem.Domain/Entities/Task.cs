@@ -17,15 +17,16 @@ namespace TaskManagementSystem.Domain.Entities
 
     public DateTime DueDateTime { get; set; }
 
-    public Guid? UserId { get; set; }
+    public Guid UserId { get; set; }
     //Navigational property
     public User? User { get; set; }
     
-    public Task(string title, string description, DateTime dueDateTime)
+    public Task(string title, string description, DateTime dueDateTime, Guid userId)
     {
       Title = title;
       Description = description;
       DueDateTime = dueDateTime;
+      UserId = userId;
     }
   }
 }

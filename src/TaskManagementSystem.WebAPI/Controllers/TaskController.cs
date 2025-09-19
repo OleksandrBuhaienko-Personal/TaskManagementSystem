@@ -1,12 +1,12 @@
-﻿using System.Collections;
-using Ardalis.Result;
+﻿using Ardalis.Result;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementSystem.Application.Services;
+using TaskManagementSystem.Domain.Dto.Tasks;
 using Task = TaskManagementSystem.Domain.Entities.Task;
 namespace TaskManagementSystem.WebAPI.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
+
 public class TaskController : ControllerBase
 {
   private readonly TaskService _taskService;
@@ -16,70 +16,123 @@ public class TaskController : ControllerBase
     _taskService = taskService;
   }
 
+  [Authorize]
   [HttpGet]
-  public async Task<ActionResult<IEnumerable<Task>>> GetAll(CancellationToken cancellationToken)
+  public async Task<ActionResult<IEnumerable<TaskResponse>>> GetAll(CancellationToken cancellationToken)
   {
     var result = await _taskService.GetAllAsync(cancellationToken);
-    return Ok(result.Value);
+    if (result.Status == ResultStatus.NotFound) return NotFound();
+    if (result.Status != ResultStatus.Ok) return StatusCode(StatusCodes.Status400BadRequest);
+    var tasks = result.Value;
+    
+    return Ok(tasks.Select(t => new TaskResponse
+    {
+      Id = t.Id,
+      UserId = t.UserId,
+      Title = t.Title,
+      Description = t.Description,
+      DueDateTime = t.DueDateTime,
+    }));  
   }
 
+  [Authorize]
   [HttpGet("{id:guid}")]
-  public async Task<ActionResult<Task>> GetById(Guid id, CancellationToken cancellationToken)
+  public async Task<ActionResult<TaskResponse>> GetById(Guid id, CancellationToken cancellationToken)
   {
     var result = await _taskService.GetByIdAsync(id, cancellationToken);
+    var task = result.Value;
     return result.Status switch
     {
       ResultStatus.NotFound => NotFound(),
-      ResultStatus.Ok => Ok(result.Value),
+      ResultStatus.Ok => Ok(
+        new TaskResponse
+        {
+          Id = task.Id,
+          UserId = task.UserId,
+          Title = task.Title,
+          Description = task.Description,
+          DueDateTime = task.DueDateTime
+        }),
       ResultStatus.Invalid => BadRequest(result.ValidationErrors),
       _ => StatusCode(StatusCodes.Status500InternalServerError)
     };
   }
-
-  // Note: Accept the domain Task entity directly to avoid guessing its constructor/shape.
-  // If you prefer DTOs, introduce CreateTaskDto/UpdateTaskDto and map to TaskEntity similarly to UserController.
+  
+  [Authorize]
   [HttpPost]
-  public async Task<ActionResult<Task>> Create([FromBody] Task entity, CancellationToken cancellationToken)
+  public async Task<ActionResult<TaskResponse>> Create([FromBody] CreateTaskRequest request, CancellationToken cancellationToken)
   {
-    var result = await _taskService.CreateAsync(entity, cancellationToken);
+    var task = new Task(
+      request.Title,
+      request.Description,
+      request.DueDateTime,
+      request.UserId);
+    var result = await _taskService.CreateAsync(task, cancellationToken);
+    
+    task = result.Value;
     return result.Status switch
     {
-      ResultStatus.Ok => CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value),
-      ResultStatus.Invalid => BadRequest(result.ValidationErrors),
-      _ => StatusCode(StatusCodes.Status500InternalServerError)
+      ResultStatus.Ok => Ok(
+        new TaskResponse
+        {
+          Id = task.Id,
+          UserId = task.UserId,
+          Title = task.Title,
+          Description = task.Description,
+          DueDateTime = task.DueDateTime
+        }),
+      ResultStatus.Error => BadRequest(result.ValidationErrors),
+      _ => StatusCode(StatusCodes.Status400BadRequest)
     };
   }
 
+  [Authorize]
   [HttpPut("{id:guid}")]
-  public async Task<ActionResult<Task>> Update(Guid id, [FromBody] Task? entity, CancellationToken cancellationToken)
+  public async Task<ActionResult<TaskResponse>> Update(Guid id, [FromBody] UpdateTaskRequest? request, CancellationToken cancellationToken)
   {
-    if (entity is null || entity.Id != id)
+    if (request is null)
     {
-      return BadRequest("Entity must be provided and its Id must match the route id.");
+      return BadRequest("Entity must be provided!");
     }
 
-    // Optionally ensure it exists first
     var existing = await _taskService.GetByIdAsync(id, cancellationToken);
     if (existing.Status == ResultStatus.NotFound) return NotFound();
-    if (existing.Status != ResultStatus.Ok) return StatusCode(StatusCodes.Status500InternalServerError);
+    if (existing.Status != ResultStatus.Ok) return StatusCode(StatusCodes.Status400BadRequest);
 
-    var result = await _taskService.UpdateAsync(entity, cancellationToken);
+    var task = new Task(
+      request.Title,
+      request.Description,
+      request.DueDateTime,
+      request.UserId);
+    task.Id = id;
+    
+    var result = await _taskService.UpdateAsync(task , cancellationToken);
+    task = result.Value;
     return result.Status switch
     {
-      ResultStatus.Ok => Ok(result.Value),
+      ResultStatus.Ok => Ok(
+        new TaskResponse
+        {
+          Id = task.Id,
+          UserId = task.UserId,
+          Title = task.Title,
+          Description = task.Description,
+          DueDateTime = task.DueDateTime
+        }),
       ResultStatus.Invalid => BadRequest(result.ValidationErrors),
       ResultStatus.NotFound => NotFound(),
-      _ => StatusCode(StatusCodes.Status500InternalServerError)
+      _ => StatusCode(StatusCodes.Status400BadRequest)
     };
   }
 
+  [Authorize]
   [HttpDelete("{id:guid}")]
-  public async Task<ActionResult> Delete(Guid id, CancellationToken cancellationToken)
+  public async Task<ActionResult<Guid>> Delete(Guid id, CancellationToken cancellationToken)
   {
     var result = await _taskService.DeleteAsync(id, cancellationToken);
     return result.Status switch
     {
-      ResultStatus.Ok => NoContent(),
+      ResultStatus.Ok => Ok(result.Value.Id),
       ResultStatus.NotFound => NotFound(),
       ResultStatus.Invalid => BadRequest(result.ValidationErrors),
       _ => StatusCode(StatusCodes.Status500InternalServerError)

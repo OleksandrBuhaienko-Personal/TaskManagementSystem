@@ -1,7 +1,8 @@
 ﻿using Ardalis.Result;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementSystem.Application.Services;
-using TaskManagementSystem.Domain.Entities;
+using TaskManagementSystem.Domain.Dto.Users;
 
 namespace TaskManagementSystem.WebAPI.Controllers;
 
@@ -16,77 +17,91 @@ public class UserController : ControllerBase
     _userService = userService;
   }
 
+  [Authorize]
   [HttpGet]
-  public async Task<ActionResult<IEnumerable<User>>> GetAll(CancellationToken cancellationToken)
+  public async Task<ActionResult<IEnumerable<UserResponse>>> GetAll(CancellationToken cancellationToken)
   {
     var result = await _userService.GetAllAsync(cancellationToken);
-    return Ok(result.Value);
+    if (result.Status == ResultStatus.NotFound) return NotFound();
+    if (result.Status != ResultStatus.Ok) return StatusCode(StatusCodes.Status400BadRequest);
+    
+    var users = result.Value;
+    
+    return Ok(users.Select(u => new UserResponse()
+    {
+      Id = u.Id,
+      Age = u.Age,
+      Email = u.Email,
+      FirstName = u.FirstName,
+      LastName = u.LastName,
+    }));
   }
 
+  [Authorize]
   [HttpGet("{id:guid}")]
-  public async Task<ActionResult<User>> GetById(Guid id, CancellationToken cancellationToken)
+  public async Task<ActionResult<UserResponse>> GetById(Guid id, CancellationToken cancellationToken)
   {
     var result = await _userService.GetByIdAsync(id, cancellationToken);
+    var user = result.Value;
     return result.Status switch
     {
       ResultStatus.NotFound => NotFound(),
-      ResultStatus.Ok => Ok(result.Value),
+      ResultStatus.Ok => Ok(
+        new UserResponse
+        {
+         Id = user.Id,
+         Age = user.Age,
+         Email = user.Email,
+         FirstName = user.FirstName,
+         LastName = user.LastName,
+        }),
       ResultStatus.Invalid => BadRequest(result.ValidationErrors),
-      _ => StatusCode(StatusCodes.Status500InternalServerError)
+      _ => StatusCode(StatusCodes.Status400BadRequest)
     };
   }
-
-  public record CreateUserDto(uint Age, string FirstName, string LastName, string Email);
-  public record UpdateUserDto(string FirstName, string LastName, string Email);
-
-  [HttpPost]
-  public async Task<ActionResult<User>> Create([FromBody] CreateUserDto dto, CancellationToken cancellationToken)
-  {
-    // Domain requires Age via constructor (Age setter is private)
-    var user = new User(dto.Age, dto.FirstName, dto.LastName, dto.Email);
-    var result = await _userService.CreateAsync(user, cancellationToken);
-
-    return result.Status switch
-    {
-      ResultStatus.Ok => CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value),
-      ResultStatus.Invalid => BadRequest(result.ValidationErrors),
-      _ => StatusCode(StatusCodes.Status500InternalServerError)
-    };
-  }
-
+  
+  [Authorize]
   [HttpPut("{id:guid}")]
-  public async Task<ActionResult<User>> Update(Guid id, [FromBody] UpdateUserDto dto, CancellationToken cancellationToken)
+  public async Task<ActionResult<UserResponse>> Update(Guid id, [FromBody] UpdateUserRequest request, CancellationToken cancellationToken)
   {
-    // Fetch existing aggregate and update mutable fields
     var existing = await _userService.GetByIdAsync(id, cancellationToken);
     if (existing.Status == ResultStatus.NotFound) return NotFound();
-    if (existing.Status != ResultStatus.Ok) return StatusCode(StatusCodes.Status500InternalServerError);
+    if (existing.Status != ResultStatus.Ok) return StatusCode(StatusCodes.Status400BadRequest);
 
-    var user = existing.Value!;
-    user.FirstName = dto.FirstName;
-    user.LastName = dto.LastName;
-    user.Email = dto.Email;
+    var existingUser = existing.Value!;
+    existingUser.FirstName = request.FirstName;
+    existingUser.LastName = request.LastName;
+    existingUser.Email = request.Email;
 
-    var result = await _userService.UpdateAsync(user, cancellationToken);
+    var result = await _userService.UpdateAsync(existingUser, cancellationToken);
+    var user = result.Value;
     return result.Status switch
     {
-      ResultStatus.Ok => Ok(result.Value),
+      ResultStatus.Ok => Ok(
+        new UserResponse
+        {
+          Id = user.Id,
+          Age = user.Age,
+          FirstName = user.FirstName,
+          LastName = user.LastName,
+          Email = user.Email,
+        }),
       ResultStatus.Invalid => BadRequest(result.ValidationErrors),
       ResultStatus.NotFound => NotFound(),
-      _ => StatusCode(StatusCodes.Status500InternalServerError)
+      _ => StatusCode(StatusCodes.Status400BadRequest)
     };
   }
-
+  [Authorize]
   [HttpDelete("{id:guid}")]
-  public async Task<ActionResult> Delete(Guid id, CancellationToken cancellationToken)
+  public async Task<ActionResult<Guid>> Delete(Guid id, CancellationToken cancellationToken)
   {
     var result = await _userService.DeleteAsync(id, cancellationToken);
     return result.Status switch
     {
-      ResultStatus.Ok => NoContent(),
+      ResultStatus.Ok => Ok(result.Value.Id),
       ResultStatus.NotFound => NotFound(),
       ResultStatus.Invalid => BadRequest(result.ValidationErrors),
-      _ => StatusCode(StatusCodes.Status500InternalServerError)
+      _ => StatusCode(StatusCodes.Status400BadRequest)
     };
   }
 }

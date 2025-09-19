@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Ardalis.Result;
+using Microsoft.AspNetCore.Identity;
 using TaskManagementSystem.Domain.Entities;
 using TaskManagementSystem.Domain.Interfaces.Services;
 using TaskManagementSystem.Domain.Interfaces.Services.Auth;
@@ -22,29 +23,41 @@ public class PasswordService : IPasswordService
     return _passwordHasher.HashPassword(null!, password);
   }
 
-  public async Task<bool> VerifyPasswordAsync(Guid userId, string password)
+  public async Task<Result> VerifyPasswordAsync(Guid userId, string password, CancellationToken ct = default)
   {
-    var user = await _userService.GetByIdAsync(userId);
+    var user = await _userService.GetByIdAsync(userId, ct);
     var verificationResult = _passwordHasher.VerifyHashedPassword(null!, user.Value.PasswordHash, password);
-    return verificationResult == PasswordVerificationResult.Success;
+    return verificationResult == PasswordVerificationResult.Success
+      ? Result.Success()
+      : Result.Error("Invalid credentials");
   }
-  public async Task<bool> VerifyPasswordAsync(User user, string password)
+
+  public Result VerifyPassword(User user, string password)
   {
     var verificationResult = _passwordHasher.VerifyHashedPassword(null!, user.PasswordHash, password);
-    return verificationResult == PasswordVerificationResult.Success;
+    return verificationResult == PasswordVerificationResult.Success
+      ? Result.Success()
+      : Result.Error("Invalid credentials");
   }
 
-  public async Task UpdatePasswordAsync(Guid userId, string newPassword)
+  public async Task<Result> UpdatePasswordAsync(Guid userId, string newPassword)
   {
-    var user = await _userService.GetByIdAsync(userId);
-    var isPasswordVerified = await VerifyPasswordAsync(user, newPassword);
-    if (!isPasswordVerified)
+    var result = await _userService.GetByIdAsync(userId);
+    if (!result.IsSuccess)
     {
-      throw new InvalidOperationException("Invalid credentials!");
+      return Result.NotFound("User not found!");
     }
-    var passwordHash = HashPassword(newPassword);
-    user.Value.PasswordHash = passwordHash;
-    await _userService.UpdateAsync(user);
-  }
 
+    var isPasswordVerified = VerifyPassword(result.Value, newPassword);
+    if (!isPasswordVerified.IsSuccess)
+    {
+      return Result.Error("Invalid credentials!");
+    }
+
+    var user = result.Value;
+    var passwordHash = HashPassword(newPassword);
+    user.PasswordHash = passwordHash;
+    result = await _userService.UpdateAsync(user);
+    return result.IsSuccess ? Result.Success() : Result.Error("Error updating password!");
+  }
 }

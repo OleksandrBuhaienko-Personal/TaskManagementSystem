@@ -13,6 +13,7 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.20" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
     <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="8.14.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
