@@ -31,5 +31,9 @@ internal class UserConfiguration : EntityConfiguration<User>
     builder.HasMany(u => u.Tasks)
       .WithOne(t => t.User)
       .HasForeignKey(t => t.UserId);
+    
+    builder.HasMany(e => e.UserRoles)
+      .WithOne(e => e.User)
+      .HasForeignKey(ur => ur.UserId);
   }
 }

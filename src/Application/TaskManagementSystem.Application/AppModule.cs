@@ -11,5 +11,9 @@ public static class AppModule
   {
     services.AddScoped<IUserService, UserService>();
     services.AddScoped<ITaskService, TaskService>();
+
+    // Register concrete implementations so controllers requesting concrete types can be resolved
+    services.AddScoped<UserService>();
+    services.AddScoped<TaskService>();
   }
 }
