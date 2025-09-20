@@ -98,7 +98,7 @@ public class TaskController : ControllerBase
   {
     if (request is null)
     {
-      return BadRequest("Entity must be provided!");
+      return BadRequest("Request must be provided!");
     }
 
     var existing = await _taskService.GetByIdAsync(id, cancellationToken);
