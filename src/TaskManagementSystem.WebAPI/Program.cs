@@ -1,3 +1,5 @@
+using System.Reflection;
+using FluentValidation;
 using Microsoft.AspNetCore.OData;
 using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
@@ -6,6 +8,7 @@ using TaskManagementSystem.Auth;
 using TaskManagementSystem.Domain.Entities;
 using TaskManagementSystem.Infrastructure.Persistence;
 using TaskManagementSystem.WebAPI.Middleware;
+using TaskManagementSystem.WebAPI.Validators;
 using Task = TaskManagementSystem.Domain.Entities.Task;
 
 namespace TaskManagementSystem.WebAPI;
@@ -46,7 +49,6 @@ public class Program
     builder.Services.ConfigureDataModule(builder.Configuration);
     builder.Services.ConfigureApplicationModules(builder.Configuration);
     builder.Services.AddAuth(builder.Configuration);
-    //builder.Services.AddDefaultODataServices();
     builder.Services.AddControllers().AddOData(o =>
     {
       var modelBuilder = new ODataConventionModelBuilder();
@@ -55,6 +57,8 @@ public class Program
       o.AddRouteComponents("odata", modelBuilder.GetEdmModel());
       o.EnableQueryFeatures();
     });
+
+    builder.Services.AddValidatorsFromAssemblyContaining<CreateRoleRequestValidator>();    
     builder.Services.AddEndpointsApiExplorer();
 
     builder.Services.AddTransient<GlobalExceptionHandler>();
