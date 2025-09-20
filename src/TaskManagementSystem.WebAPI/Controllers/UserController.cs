@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
+using TaskManagementSystem.Application.Dto.Users;
 using TaskManagementSystem.Application.Services;
-using TaskManagementSystem.Domain.Dto.Users;
 
 namespace TaskManagementSystem.WebAPI.Controllers;
 
@@ -29,14 +29,14 @@ public class UserController : ControllerBase
     
     var users = result.Value;
     
-    return Ok(users.Select(u => new UserResponse()
-    {
-      Id = u.Id,
-      Age = u.Age,
-      Email = u.Email,
-      FirstName = u.FirstName,
-      LastName = u.LastName,
-    }));
+    return Ok(users.Select(u => new UserResponse
+    (
+      Id: u.Id,
+      Age: u.Age,
+      Email: u.Email,
+      FirstName: u.FirstName,
+      LastName: u.LastName
+    )));
   }
 
   [Authorize]
@@ -50,13 +50,13 @@ public class UserController : ControllerBase
       ResultStatus.NotFound => NotFound(),
       ResultStatus.Ok => Ok(
         new UserResponse
-        {
-         Id = user.Id,
-         Age = user.Age,
-         Email = user.Email,
-         FirstName = user.FirstName,
-         LastName = user.LastName,
-        }),
+        (
+          Id: user.Id,
+          Age: user.Age,
+          Email: user.Email,
+          FirstName: user.FirstName,
+          LastName: user.LastName
+        )),
       ResultStatus.Invalid => BadRequest(result.ValidationErrors),
       _ => StatusCode(StatusCodes.Status400BadRequest)
     };
@@ -81,13 +81,13 @@ public class UserController : ControllerBase
     {
       ResultStatus.Ok => Ok(
         new UserResponse
-        {
-          Id = user.Id,
-          Age = user.Age,
-          FirstName = user.FirstName,
-          LastName = user.LastName,
-          Email = user.Email,
-        }),
+        (
+          Id: user.Id,
+          Age: user.Age,
+          Email: user.Email,
+          FirstName: user.FirstName,
+          LastName: user.LastName
+        )),
       ResultStatus.Invalid => BadRequest(result.ValidationErrors),
       ResultStatus.NotFound => NotFound(),
       _ => StatusCode(StatusCodes.Status400BadRequest)

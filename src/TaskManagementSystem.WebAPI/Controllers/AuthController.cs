@@ -1,7 +1,7 @@
 ﻿using Ardalis.Result;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TaskManagementSystem.Domain.Dto.Auth;
+using TaskManagementSystem.Application.Dto.Auth;
 using TaskManagementSystem.Domain.Interfaces.Services.Auth;
 
 namespace TaskManagementSystem.WebAPI.Controllers;
@@ -24,7 +24,7 @@ public class AuthController(IRegisterService registerService, ILoginService logi
       request.Password);
 
     return jwtTokenResult.IsSuccess
-      ? Ok(new RegisterResponse { Token = jwtTokenResult.Value })
+      ? Ok(new RegisterResponse (jwtTokenResult.Value))
       : BadRequest("Error creating new user!");
   }
 
@@ -33,10 +33,10 @@ public class AuthController(IRegisterService registerService, ILoginService logi
   [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
   public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request, CancellationToken ct)
   {
-    var jwtTokenResult = await loginService.LoginAsync(request);
+    var jwtTokenResult = await loginService.LoginAsync(request.Email, request.Password);
 
     return jwtTokenResult.IsSuccess
-      ? Ok(new LoginResponse { Token = jwtTokenResult.Value })
+      ? Ok(new LoginResponse (jwtTokenResult.Value ))
       : BadRequest("Invalid credentials!");
   }
   

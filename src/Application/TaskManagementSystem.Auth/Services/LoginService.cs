@@ -1,7 +1,5 @@
 ﻿using Ardalis.Result;
 using TaskManagementSystem.Auth.Abstractions;
-using TaskManagementSystem.Domain.Dto;
-using TaskManagementSystem.Domain.Dto.Auth;
 using TaskManagementSystem.Domain.Interfaces.Services;
 using TaskManagementSystem.Domain.Interfaces.Services.Auth;
 
@@ -23,14 +21,14 @@ internal sealed class LoginService : ILoginService
     _jwtProvider = jwtProvider;
   }
 
-  public async Task<Result<string>> LoginAsync(LoginRequest request)
+  public async Task<Result<string>> LoginAsync(string email, string password)
   {
-    var result = await _userService.GetUserByEmailAsync(request.Email);
+    var result = await _userService.GetUserByEmailAsync(email);
     if (!result.IsSuccess)
     {
       return Result.Error("Invalid email!");
     }
-    var isPasswordVerified = _passwordService.VerifyPassword(result.Value, request.Password);
+    var isPasswordVerified = _passwordService.VerifyPassword(result.Value, password);
     if (!isPasswordVerified.IsSuccess)
     {
       return Result.Error("Invalid credentials");

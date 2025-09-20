@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
+using TaskManagementSystem.Application.Dto.Tasks;
 using TaskManagementSystem.Application.Services;
-using TaskManagementSystem.Domain.Dto.Tasks;
 using TaskManagementSystem.Domain.Interfaces.Services;
 using Task = TaskManagementSystem.Domain.Entities.Task;
 namespace TaskManagementSystem.WebAPI.Controllers;
@@ -32,13 +32,13 @@ public class TaskController : ControllerBase
     var tasks = result.Value;
     
     return Ok(tasks.Select(t => new TaskResponse
-    {
-      Id = t.Id,
-      UserId = t.UserId,
-      Title = t.Title,
-      Description = t.Description,
-      DueDateTime = t.DueDateTime,
-    }));  
+    (
+      Id: t.Id,
+      UserId: t.UserId,
+      Title: t.Title,
+      Description: t.Description,
+      DueDateTime: t.DueDateTime
+    )));  
   }
 
   [Authorize]
@@ -52,13 +52,13 @@ public class TaskController : ControllerBase
       ResultStatus.NotFound => NotFound(),
       ResultStatus.Ok => Ok(
         new TaskResponse
-        {
-          Id = task.Id,
-          UserId = task.UserId,
-          Title = task.Title,
-          Description = task.Description,
-          DueDateTime = task.DueDateTime
-        }),
+        (
+          Id: task.Id,
+          UserId: task.UserId,
+          Title: task.Title,
+          Description: task.Description,
+          DueDateTime: task.DueDateTime
+        )),
       ResultStatus.Invalid => BadRequest(result.ValidationErrors),
       _ => StatusCode(StatusCodes.Status500InternalServerError)
     };
@@ -80,13 +80,13 @@ public class TaskController : ControllerBase
     {
       ResultStatus.Ok => Ok(
         new TaskResponse
-        {
-          Id = task.Id,
-          UserId = task.UserId,
-          Title = task.Title,
-          Description = task.Description,
-          DueDateTime = task.DueDateTime
-        }),
+        (
+          Id: task.Id,
+          UserId: task.UserId,
+          Title: task.Title,
+          Description: task.Description,
+          DueDateTime: task.DueDateTime
+        )),
       ResultStatus.Error => BadRequest(result.ValidationErrors),
       _ => StatusCode(StatusCodes.Status400BadRequest)
     };
@@ -124,13 +124,13 @@ public class TaskController : ControllerBase
     {
       ResultStatus.Ok => Ok(
         new TaskResponse
-        {
-          Id = task.Id,
-          UserId = task.UserId,
-          Title = task.Title,
-          Description = task.Description,
-          DueDateTime = task.DueDateTime
-        }),
+        (
+          Id: task.Id,
+          UserId: task.UserId,
+          Title: task.Title,
+          Description: task.Description,
+          DueDateTime: task.DueDateTime
+        )),
       ResultStatus.Invalid => BadRequest(result.ValidationErrors),
       ResultStatus.NotFound => NotFound(),
       _ => StatusCode(StatusCodes.Status400BadRequest)
