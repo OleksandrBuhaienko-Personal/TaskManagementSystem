@@ -1,8 +1,0 @@
-<Project>
-    <PropertyGroup>
-        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    </PropertyGroup>
-    <ItemGroup>
-    </ItemGroup>
-</Project>
