@@ -3,17 +3,21 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementSystem.Application.Services;
 using TaskManagementSystem.Domain.Dto.Tasks;
+using TaskManagementSystem.Domain.Interfaces.Services;
 using Task = TaskManagementSystem.Domain.Entities.Task;
 namespace TaskManagementSystem.WebAPI.Controllers;
 
-
+[ApiController]
+[Route("api/[controller]")]
 public class TaskController : ControllerBase
 {
   private readonly TaskService _taskService;
+  private readonly IUserService _userService;
 
-  public TaskController(TaskService taskService)
+  public TaskController(TaskService taskService, IUserService userService)
   {
     _taskService = taskService;
+    _userService = userService;
   }
 
   [Authorize]
@@ -99,12 +103,18 @@ public class TaskController : ControllerBase
     if (existing.Status == ResultStatus.NotFound) return NotFound();
     if (existing.Status != ResultStatus.Ok) return StatusCode(StatusCodes.Status400BadRequest);
 
-    var task = new Task(
-      request.Title,
-      request.Description,
-      request.DueDateTime,
-      request.UserId);
-    task.Id = id;
+    var task = existing.Value;
+    task.Title = request.Title;
+    task.Description = request.Description;
+    task.DueDateTime = request.DueDateTime;
+
+    if (existing.Value.UserId != request.UserId)
+    {
+      var user = await _userService.GetByIdAsync(request.UserId, cancellationToken);
+      
+      if (user.Status == ResultStatus.NotFound) return NotFound("User not found!");
+      task.UserId = request.UserId;
+    }
     
     var result = await _taskService.UpdateAsync(task , cancellationToken);
     task = result.Value;

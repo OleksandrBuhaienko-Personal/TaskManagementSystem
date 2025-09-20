@@ -10,13 +10,13 @@ namespace TaskManagementSystem.Auth.Services;
 internal sealed class LoginService : ILoginService
 {
   private readonly IUserService _userService;
-  private readonly IJwtProvider _jwtProvider;
+  private readonly TokenProvider _jwtProvider;
   private readonly IPasswordService _passwordService;
 
   public LoginService(
     IUserService userService,
     IPasswordService passwordService,
-    IJwtProvider jwtProvider)
+    TokenProvider jwtProvider)
   {
     _userService = userService;
     _passwordService = passwordService;
@@ -35,7 +35,7 @@ internal sealed class LoginService : ILoginService
     {
       return Result.Error("Invalid credentials");
     }
-    string token = await _jwtProvider.Generate(result.Value);
+    string token = await _jwtProvider.Create(result.Value);
     return Result.Success(token);
   }
 }

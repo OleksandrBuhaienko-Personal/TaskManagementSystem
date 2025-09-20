@@ -11,6 +11,6 @@ namespace TaskManagementSystem.Domain.Interfaces.Services.Identity
   {
     Task<Result<Role>> CreateRoleAsync(string roleName, CancellationToken cancellationToken = default);
     Task<Result> AssignRoleToUserAsync(Guid userId, string roleName, CancellationToken cancellationToken = default);
-    Task<Result<List<string>>> GetUserRoles(Guid userId, CancellationToken cancellationToken = default);
+    Task<List<string>> GetUserRoles(Guid userId, CancellationToken cancellationToken = default);
   }
 }

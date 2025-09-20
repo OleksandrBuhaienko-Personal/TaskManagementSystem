@@ -10,12 +10,12 @@ namespace TaskManagementSystem.Auth.Services;
 
 public class RegisterService : IRegisterService
 {
-  private readonly IJwtProvider _jwtProvider;
+  private readonly TokenProvider _jwtProvider;
   private readonly IUserService _userService;
   private readonly IPasswordService _passwordService;
   private readonly IRoleService _roleService;
 
-  public RegisterService(IUserService userService, IJwtProvider jwtProvider, IPasswordService passwordService,
+  public RegisterService(IUserService userService, TokenProvider jwtProvider, IPasswordService passwordService,
     IRoleService roleService)
   {
     _userService = userService;
@@ -36,7 +36,7 @@ public class RegisterService : IRegisterService
     var newUser = new User(age, firstName, lastName, email) { PasswordHash = _passwordService.HashPassword(password) };
     var createdUser = await _userService.CreateAsync(newUser);
     await _roleService.AssignRoleToUserAsync(createdUser.Value.Id, UserDomainConstants.DefaultRoleName);
-    string token = await _jwtProvider.Generate(createdUser);
+    string token = await _jwtProvider.Create(createdUser);
     return token;
   }
 }

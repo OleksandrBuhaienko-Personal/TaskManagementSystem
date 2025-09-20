@@ -25,7 +25,7 @@ public class TaskService : ITaskService
   public async Task<Result<Task>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
   {
     Guard.Against.Default(id, nameof(id));
-    var result = await _repository.GetByIdAsync(new GetTaskByIdSpec(id), cancellationToken);
+    var result = await _repository.GetByIdAsync(id, cancellationToken);
     return result is not null ? Result<Task>.Success(result) : Result<Task>.NotFound();
   }
 
@@ -46,7 +46,7 @@ public class TaskService : ITaskService
   public async Task<Result<Task>> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
   {
     Guard.Against.Default(id, nameof(id));
-    var entity = await _repository.GetByIdAsync(new GetTaskByIdSpec(id), cancellationToken);
+    var entity = await _repository.GetByIdAsync(id, cancellationToken);
     if (entity is null)
     {
       return Result<Task>.NotFound();

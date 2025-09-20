@@ -51,7 +51,7 @@ public class RoleService : IRoleService
     return Result.Success();
   }
 
-  public async Task<Result<List<string>>> GetUserRoles(Guid userId, CancellationToken cancellationToken = default)
+  public async Task<List<string>> GetUserRoles(Guid userId, CancellationToken cancellationToken = default)
   {
     Guard.Against.Default(userId, nameof(userId));
     var userRoles = await _userRoleRepository.ListAsync(new GetUserRolesByUserIdSpec(userId), cancellationToken);

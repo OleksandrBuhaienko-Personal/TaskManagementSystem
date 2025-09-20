@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using TaskManagementSystem.Auth.Authentication;
 
@@ -22,7 +21,7 @@ public class JwtOptionsSetup : IConfigureOptions<JwtOptions>
     // Fallback for commonly used key name "Secret" -> map to SecretKey if not provided.
     if (string.IsNullOrWhiteSpace(options.SecretKey))
     {
-      var altSecret = _configuration.GetSection(SectionName)["Secret"];
+      var altSecret = _configuration.GetSection(SectionName)["SecretKey"];
       if (!string.IsNullOrWhiteSpace(altSecret))
       {
         options.SecretKey = altSecret!;
@@ -30,7 +29,7 @@ public class JwtOptionsSetup : IConfigureOptions<JwtOptions>
     }
 
     // Support "ExpirationMinutes" in configuration by converting it to hours for the existing Expires option.
-    var expMinutes = _configuration.GetSection(SectionName)["ExpirationMinutes"];
+    var expMinutes = _configuration.GetSection(SectionName)["Expires"];
     if (!string.IsNullOrWhiteSpace(expMinutes) && int.TryParse(expMinutes, out var minutes) && minutes > 0)
     {
       var hours = (int)Math.Ceiling(minutes / 60.0);

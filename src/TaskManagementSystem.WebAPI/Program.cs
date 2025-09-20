@@ -17,44 +17,41 @@ public class Program
     {
       c.SwaggerDoc("v1", new OpenApiInfo { Title = "Task Management System API", Version = "v1" });
 
-      c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-      {
-        In = ParameterLocation.Header,
-        Description = "Enter JWT with Bearer prefix",
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-      });
+      c.AddSecurityDefinition("Bearer",
+        new OpenApiSecurityScheme
+        {
+          In = ParameterLocation.Header,
+          Description = "Enter JWT with Bearer prefix",
+          Name = "Authorization",
+          Type = SecuritySchemeType.ApiKey,
+          Scheme = "Bearer"
+        });
 
       c.AddSecurityRequirement(new OpenApiSecurityRequirement
       {
         {
           new OpenApiSecurityScheme
           {
-            Reference = new OpenApiReference
-            {
-              Type = ReferenceType.SecurityScheme,
-              Id = "Bearer"
-            }
+            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
           },
           new string[] { }
         }
       });
     });
-    
+
     builder.Services.ConfigureDataModule(builder.Configuration);
     builder.Services.ConfigureApplicationModules(builder.Configuration);
     builder.Services.AddAuth(builder.Configuration);
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
-     
+
     builder.Services.AddTransient<GlobalExceptionHandler>();
 
     builder.Services.AddHttpContextAccessor();
-    
+
     var app = builder.Build();
-    
-    
+
+
     app.UseCors(options =>
     {
       options.AllowAnyHeader();
@@ -67,15 +64,16 @@ public class Program
       app.UseSwagger();
       app.UseSwaggerUI();
     }
+
     app.UseMiddleware<GlobalExceptionHandler>();
 
     app.UseHttpsRedirection();
-      
-      app.UseAuthentication()
-      .UseAuthorization();
-      app.MapControllers();
-      app.UseSwagger();
-      
+
+    app.MapControllers();
+    app.UseAuthentication();
+    app.UseAuthorization();
+    app.UseSwagger();
+
     app.Run();
   }
 }
