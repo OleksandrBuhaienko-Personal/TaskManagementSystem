@@ -1,5 +1,6 @@
 using System.Reflection;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.OData;
 using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
@@ -56,9 +57,9 @@ public class Program
       modelBuilder.EntitySet<Task>("Tasks");
       o.AddRouteComponents("odata", modelBuilder.GetEdmModel());
       o.EnableQueryFeatures();
-    });
+    })
+    .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<CreateRoleRequestValidator>());
 
-    builder.Services.AddValidatorsFromAssemblyContaining<CreateRoleRequestValidator>();    
     builder.Services.AddEndpointsApiExplorer();
 
     builder.Services.AddTransient<GlobalExceptionHandler>();
