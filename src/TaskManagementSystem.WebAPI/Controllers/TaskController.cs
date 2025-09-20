@@ -1,6 +1,7 @@
 ﻿using Ardalis.Result;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using TaskManagementSystem.Application.Services;
 using TaskManagementSystem.Domain.Dto.Tasks;
 using TaskManagementSystem.Domain.Interfaces.Services;
@@ -20,6 +21,7 @@ public class TaskController : ControllerBase
     _userService = userService;
   }
 
+  [EnableQuery]
   [Authorize]
   [HttpGet]
   public async Task<ActionResult<IEnumerable<TaskResponse>>> GetAll(CancellationToken cancellationToken)

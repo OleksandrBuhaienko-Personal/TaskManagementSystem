@@ -1,8 +1,12 @@
+using Microsoft.AspNetCore.OData;
+using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
 using TaskManagementSystem.Application;
 using TaskManagementSystem.Auth;
+using TaskManagementSystem.Domain.Entities;
 using TaskManagementSystem.Infrastructure.Persistence;
 using TaskManagementSystem.WebAPI.Middleware;
+using Task = TaskManagementSystem.Domain.Entities.Task;
 
 namespace TaskManagementSystem.WebAPI;
 
@@ -42,7 +46,15 @@ public class Program
     builder.Services.ConfigureDataModule(builder.Configuration);
     builder.Services.ConfigureApplicationModules(builder.Configuration);
     builder.Services.AddAuth(builder.Configuration);
-    builder.Services.AddControllers();
+    //builder.Services.AddDefaultODataServices();
+    builder.Services.AddControllers().AddOData(o =>
+    {
+      var modelBuilder = new ODataConventionModelBuilder();
+      modelBuilder.EntitySet<User>("Users");
+      modelBuilder.EntitySet<Task>("Tasks");
+      o.AddRouteComponents("odata", modelBuilder.GetEdmModel());
+      o.EnableQueryFeatures();
+    });
     builder.Services.AddEndpointsApiExplorer();
 
     builder.Services.AddTransient<GlobalExceptionHandler>();
@@ -58,6 +70,7 @@ public class Program
       options.AllowAnyMethod();
       options.AllowAnyOrigin();
     });
+
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
     {
